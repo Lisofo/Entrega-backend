@@ -1,0 +1,17 @@
+<h1>Productos en Tiempo Real</h1>
+<ul id="productsList">
+  {{#each products}}
+    <li>
+      <h2>{{this.title}}</h2>
+      <p>Precio: ${{this.price}}</p>
+      <p>ID: {{this.id}}</p>
+      <button onclick="deleteProduct({{this.id}})">Eliminar</button>
+    </li>
+  {{/each}}
+</ul>
+
+<form id="productForm">
+  <input type="text" id="title" placeholder="Título" required>
+  <input type="number" id="price" placeholder="Precio" required>
+  <button type="submit">Agregar Producto</button>
+</form>

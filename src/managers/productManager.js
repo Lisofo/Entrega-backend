@@ -48,4 +48,4 @@ class ProductManager {
   }
 }
 
-export default ProductManager;
+export const productManagerInstance = new ProductManager('./products.json');
