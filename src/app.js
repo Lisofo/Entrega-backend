@@ -5,6 +5,8 @@ import { engine } from 'express-handlebars';
 import productsRouter from './routes/products.router.js';
 import cartsRouter from './routes/carts.router.js';
 import viewsRouter from './routes/views.router.js';
+import { productManagerInstance } from './managers/productManager.js';
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer);
@@ -14,14 +16,27 @@ app.set('view engine', 'handlebars');
 app.set('views', './src/views');
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('./src/public'));
 
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 app.use('/', viewsRouter);
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log('Nuevo cliente conectado');
+  
+  socket.emit('updateProducts', await productManagerInstance.getProducts());
+
+  socket.on('addProduct', async (productData) => {
+    await productManagerInstance.addProduct(productData);
+    io.emit('updateProducts', await productManagerInstance.getProducts());
+  });
+
+  socket.on('deleteProduct', async (id) => {
+    await productManagerInstance.deleteProduct(id);
+    io.emit('updateProducts', await productManagerInstance.getProducts());
+  });
 });
 
 const PORT = 8080;

@@ -14,9 +14,13 @@ router.get('/:pid', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const prod = await productManagerInstance.addProduct(req.body);
-  io.emit('updateProducts', await productManagerInstance.getProducts());
-  res.status(201).json(prod);
+  try {
+    const prod = await productManagerInstance.addProduct(req.body);
+    io.emit('updateProducts', await productManagerInstance.getProducts());
+    res.status(201).json(prod);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 router.put('/:pid', async (req, res) => {

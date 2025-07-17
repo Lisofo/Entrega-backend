@@ -1,17 +1,22 @@
 import express from 'express';
-import ProductManager from '../managers/productManager.js';
+import { productManagerInstance } from '../managers/productManager.js';
 
 const router = express.Router();
-const manager = new ProductManager('./products.json');
 
 router.get('/', async (req, res) => {
-  const products = await manager.getProducts();
-  res.render('home', { products });
+  const products = await productManagerInstance.getProducts();
+  res.render('home', { 
+    products,
+    useSocket: false
+  });
 });
 
 router.get('/realtimeproducts', async (req, res) => {
-  const products = await manager.getProducts();
-  res.render('realTimeProducts', { products });
+  const products = await productManagerInstance.getProducts();
+  res.render('realTimeProducts', { 
+    products,
+    useSocket: true
+  });
 });
 
 export default router;
