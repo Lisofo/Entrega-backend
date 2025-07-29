@@ -1,47 +1,31 @@
+import 'dotenv/config';
 import express from 'express';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
-import { engine } from 'express-handlebars';
-import productsRouter from './routes/products.router.js';
-import cartsRouter from './routes/carts.router.js';
-import viewsRouter from './routes/views.router.js';
-import { productManagerInstance } from './managers/productManager.js';
+import handlebars from 'express-handlebars';
+import { connectDB } from './config/db.config.js';
+import { productsRouter } from './routes/products.router.js';
+import { cartsRouter } from './routes/carts.router.js';
+import { viewsRouter } from './routes/views.router.js';
 
 const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer);
-
-app.engine('handlebars', engine());
-app.set('view engine', 'handlebars');
-app.set('views', './src/views');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('./src/public'));
+app.use(express.static('public'));
+
+app.engine('handlebars', handlebars.engine());
+app.set('view engine', 'handlebars');
+app.set('views', './src/views');
+
+connectDB();
 
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 app.use('/', viewsRouter);
 
-io.on('connection', async (socket) => {
-  console.log('Nuevo cliente conectado');
-  
-  socket.emit('updateProducts', await productManagerInstance.getProducts());
-
-  socket.on('addProduct', async (productData) => {
-    await productManagerInstance.addProduct(productData);
-    io.emit('updateProducts', await productManagerInstance.getProducts());
-  });
-
-  socket.on('deleteProduct', async (id) => {
-    await productManagerInstance.deleteProduct(id);
-    io.emit('updateProducts', await productManagerInstance.getProducts());
-  });
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('error', { error: 'Algo salió mal!' });
 });
 
-const PORT = 8080;
-httpServer.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
-});
-
-export { io };
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,0 +1,63 @@
+<h1>Productos</h1>
+
+<div class="filters">
+  <form action="/products" method="get">
+    <input type="text" name="query" placeholder="Buscar por categoría">
+    <select name="sort">
+      <option value="">Ordenar por</option>
+      <option value="asc">Precio: Menor a Mayor</option>
+      <option value="desc">Precio: Mayor a Menor</option>
+    </select>
+    <button type="submit">Filtrar</button>
+  </form>
+</div>
+
+{{#if payload.length}}
+  <div class="products-grid">
+    {{#each payload}}
+      <div class="product-card">
+        <h2>{{this.title}}</h2>
+        <p>${{this.price}}</p>
+        <p>Stock: {{this.stock}}</p>
+        <a href="/products/{{this._id}}">Ver detalles</a>
+        <button onclick="addToCart('{{this._id}}')">Agregar al carrito</button>
+      </div>
+    {{/each}}
+  </div>
+
+  <div class="pagination">
+    {{#if hasPrevPage}}
+      <a href="{{prevLink}}">Anterior</a>
+    {{/if}}
+    
+    <span>Página {{page}} de {{totalPages}}</span>
+    
+    {{#if hasNextPage}}
+      <a href="{{nextLink}}">Siguiente</a>
+    {{/if}}
+  </div>
+{{else}}
+  <p>No se encontraron productos</p>
+{{/if}}
+
+<script>
+  async function addToCart(productId) {
+    try {
+      const response = await fetch(`/api/carts/:cid/products/${productId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        alert('Producto agregado al carrito');
+      } else {
+        const error = await response.json();
+        alert(error.message);
+      }
+    } catch (error) {
+      alert('Error al agregar al carrito');
+    }
+  }
+</script>

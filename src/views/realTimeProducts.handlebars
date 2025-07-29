@@ -1,9 +1,15 @@
 <h1>Productos en Tiempo Real</h1>
+<div id="errorMessage" style="color: red;"></div>
+
 <ul id="productsList">
   {{#each products}}
     <li>
       <h2>{{this.title}}</h2>
+      <p>Descripción: {{this.description}}</p>
       <p>Precio: ${{this.price}}</p>
+      <p>Código: {{this.code}}</p>
+      <p>Stock: {{this.stock}}</p>
+      <p>Categoría: {{this.category}}</p>
       <p>ID: {{this.id}}</p>
       <button onclick="deleteProduct({{this.id}})">Eliminar</button>
     </li>
@@ -12,6 +18,10 @@
 
 <form id="productForm">
   <input type="text" id="title" placeholder="Título" required>
-  <input type="number" id="price" placeholder="Precio" required>
+  <input type="text" id="description" placeholder="Descripción" required>
+  <input type="number" id="price" placeholder="Precio" required min="0.01" step="0.01">
+  <input type="text" id="code" placeholder="Código" required>
+  <input type="number" id="stock" placeholder="Stock" required min="0">
+  <input type="text" id="category" placeholder="Categoría" required>
   <button type="submit">Agregar Producto</button>
 </form>

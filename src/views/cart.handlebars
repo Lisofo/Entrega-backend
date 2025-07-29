@@ -1,0 +1,69 @@
+<h1>Carrito #{{cart._id}}</h1>
+
+{{#if cart.products.length}}
+  <div class="cart-items">
+    {{#each cart.products}}
+      <div class="cart-item">
+        <h2>{{this.product.title}}</h2>
+        <p>Precio unitario: ${{this.product.price}}</p>
+        <p>Cantidad: {{this.quantity}}</p>
+        <p>Total: ${{multiply this.product.price this.quantity}}</p>
+        
+        <div class="item-actions">
+          <form action="/api/carts/{{../cart._id}}/products/{{this.product._id}}" method="PUT">
+            <input type="number" name="quantity" value="{{this.quantity}}" min="1">
+            <button type="submit">Actualizar</button>
+          </form>
+          <button onclick="removeFromCart('{{../cart._id}}', '{{this.product._id}}')">Eliminar</button>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+
+  <div class="cart-total">
+    <h3>Total del carrito: ${{calculateTotal cart.products}}</h3>
+  </div>
+
+  <div class="cart-actions">
+    <button onclick="clearCart('{{cart._id}}')">Vaciar carrito</button>
+    <button>Finalizar compra</button>
+  </div>
+{{else}}
+  <p>Tu carrito está vacío</p>
+{{/if}}
+
+<script>
+  async function removeFromCart(cartId, productId) {
+    try {
+      const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        location.reload();
+      } else {
+        const error = await response.json();
+        alert(error.message);
+      }
+    } catch (error) {
+      alert('Error al eliminar producto');
+    }
+  }
+
+  async function clearCart(cartId) {
+    try {
+      const response = await fetch(`/api/carts/${cartId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        location.reload();
+      } else {
+        const error = await response.json();
+        alert(error.message);
+      }
+    } catch (error) {
+      alert('Error al vaciar carrito');
+    }
+  }
+</script>
